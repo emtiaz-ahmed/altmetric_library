@@ -3,6 +3,8 @@ import json
 import pandas as pd
 import time
 
+COUNT = 0
+
 def read_data(inFile):
 	data = pd.read_csv(inFile)
 	return data
@@ -12,7 +14,8 @@ def get_search_content(doi):
 	response = requests.get(url, headers={'Accept': 'application/json'})
 	return response
 
-def get_data(pdf):
+def get_data(pdf,outputFile):
+	global COUNT
 	for i,element in pdf.iterrows():
 
 		eids = []
@@ -22,8 +25,9 @@ def get_data(pdf):
 		same_age_pos = []
 		same_age_source_pos = []
 
-		eid = element['eids']
-		doi = element['doi']
+		eids.append(element['eids'])
+		dois.append(element['doi'])
+		doi = str(element['doi'])
 		response = get_search_content(doi)
 
 		if response.status_code == 403:
@@ -61,7 +65,23 @@ def get_data(pdf):
 			print(same_age_pos)
 			print(same_age_source_pos)
 			# print(result)
-			break
+			
+
+			df = pd.DataFrame({'eid': eids,'doi': dois,'score': score,'percent_position': altmetric_pos_percent,'same_age_position': same_age_pos, 'same_age_source_position': same_age_source_pos})
+			df = df[['eid','doi','score','percent_position','same_age_position', 'same_age_source_position']]
+
+			if COUNT==0:
+				df.to_csv(outputFile, sep=',', index=False)
+			else:
+				with open(outputFile, 'a') as f:
+					df.to_csv(f, sep=',', index=False, header=False)
+
+			COUNT = COUNT + 1
+
+			# if COUNT==3:
+			# 	break
+
+
 
 		print("completed:",i)
 		time.sleep(1)
@@ -73,6 +93,7 @@ def get_data(pdf):
 
 if __name__=="__main__":
 	inputFile = "input/dois.csv"
+	outputFile = "output/altmetric_scores.csv"
 	data = read_data(inputFile)
-	get_data(data)
+	get_data(data,outputFile)
 	# print(data)
