@@ -55,7 +55,7 @@ def get_data(pdf,outputFile):
 				continue
 
 			score.append(result['score'])
-			altmetric_pos_percent.append((result['context']['all']['rank']/result['context']['all']['count'])*100)
+			altmetric_pos_percent.append(float((result['context']['all']['rank']*100.0/result['context']['all']['count'])))
 			same_age_pos.append(result['context']['similar_age_3m']['pct'])
 			same_age_source_pos.append(result['context']['similar_age_journal_3m']['pct']) 
 
