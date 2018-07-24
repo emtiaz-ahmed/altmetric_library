@@ -18,6 +18,9 @@ def get_data(pdf):
 		eids = []
 		dois = []
 		score = []
+		altmetric_pos_percent = []
+		same_age_pos = []
+		same_age_source_pos = []
 
 		eid = element['eids']
 		doi = element['doi']
@@ -25,8 +28,9 @@ def get_data(pdf):
 
 		if response.status_code == 403:
 			print("you are not authorized to this call")
+			break
 		elif response.status_code == 404:
-			print("Altmetric doesn't have any details for the article or set of articles you requested.")
+			# print("Altmetric doesn't have any details for the article or set of articles you requested.")
 			continue
 		elif response.status_code == 429:
 			print("Rate is limited and you finished your rate")
@@ -45,22 +49,27 @@ def get_data(pdf):
 			except:
 				print("no json available")
 				continue
-			print(result)
+
+			score.append(result['score'])
+			altmetric_pos_percent.append((result['context']['all']['rank']/result['context']['all']['count'])*100)
+			same_age_pos.append(result['context']['similar_age_3m']['pct'])
+			same_age_source_pos.append(result['context']['similar_age_journal_3m']['pct']) 
+
+
+			print(score)
+			print(altmetric_pos_percent)
+			print(same_age_pos)
+			print(same_age_source_pos)
+			# print(result)
 			break
+
+		print("completed:",i)
 		time.sleep(1)
 
 
 
 
-
-
-
-
-
-
-	response = get_search_content("10.1038/srep25651")
-
-	print(response)
+	# print(response)
 
 if __name__=="__main__":
 	inputFile = "input/dois.csv"
